@@ -40,13 +40,14 @@ namespace Blockcore
                 window.SetIconFile("Xds-ui.favicon.ico");
 
                 IFullNode node = null;
+                Task nodeTask = null;
 
                 Task.Run(() =>
                 {
                     try
                     {
                         node = nodeBuilder.Build();
-                        var nodeTask = node.RunAsync();
+                        nodeTask = node.RunAsync();
                     }
                     catch (Exception ex)
                     {
@@ -59,7 +60,7 @@ namespace Blockcore
                 });
 
                 window.WaitForExit();
-                node?.Dispose();
+                nodeTask.Wait();
             }
             catch (Exception ex)
             {

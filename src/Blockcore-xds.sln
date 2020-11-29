@@ -5,8 +5,6 @@ VisualStudioVersion = 16.0.29409.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blockcore", "Blockcore\Blockcore.csproj", "{094AECD5-E0D8-43A9-A0BD-39B01F51A1F2}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "External", "External", "{1B9A916F-DDAC-4675-B424-EDEDC1A58231}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blockcore.Features.RPC", "Features\Blockcore.Features.RPC\Blockcore.Features.RPC.csproj", "{5E0010F1-50B8-4FC5-A9C2-38D7DF73A0D2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blockcore.Features.Miner", "Features\Blockcore.Features.Miner\Blockcore.Features.Miner.csproj", "{22B296FE-26B4-4B84-8CF5-614F9D3716A6}"

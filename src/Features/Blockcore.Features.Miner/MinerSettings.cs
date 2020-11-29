@@ -48,6 +48,27 @@ namespace Blockcore.Features.Miner
         public bool Mine { get; private set; }
 
         /// <summary>
+        /// Set the threads for CPU mining.
+        /// </summary>
+        public int MineThreadCount { get; }
+
+        /// <summary>
+        /// Use a GPU to mine if available, Default true.
+        /// </summary>
+        public bool UseOpenCL { get; }
+
+        /// <summary>
+        /// The name of the OpenCLDevice to use. Default is first one found.
+        /// </summary>
+        public string OpenCLDevice { get; set; }
+
+        /// <summary>
+        /// Amount to split the work to send to the OpenCL device.
+        /// Experiment with this value to find the optimum between a short execution time and big hash rate.
+        /// </summary>
+        public int OpenCLWorksizeSplit { get; }
+
+        /// <summary>
         /// If true this will only allow staking coins that have been flaged.
         /// </summary>
         public bool EnforceStakingFlag { get; private set; }
@@ -86,7 +107,13 @@ namespace Blockcore.Features.Miner
 
             this.Mine = config.GetOrDefault<bool>("mine", false, this.logger);
             if (this.Mine)
+            {
                 this.MineAddress = config.GetOrDefault<string>("mineaddress", null, this.logger);
+                this.MineThreadCount = config.GetOrDefault<int>("minethreads", 1, this.logger);
+                this.UseOpenCL = config.GetOrDefault<bool>("useopencl", false, this.logger);
+                this.OpenCLDevice = config.GetOrDefault<string>("opencldevice", null, this.logger);
+                this.OpenCLWorksizeSplit = config.GetOrDefault<int>("openclworksizesplit", 10, this.logger);
+            }
 
             this.Stake = config.GetOrDefault<bool>("stake", false, this.logger);
             if (this.Stake)
@@ -95,8 +122,8 @@ namespace Blockcore.Features.Miner
                 this.WalletPassword = config.GetOrDefault<string>("walletpassword", null); // No logging!
             }
 
-            uint blockMaxSize = (uint) config.GetOrDefault<int>("blockmaxsize", (int) nodeSettings.Network.Consensus.Options.MaxBlockSerializedSize, this.logger);
-            uint blockMaxWeight = (uint) config.GetOrDefault<int>("blockmaxweight", (int) nodeSettings.Network.Consensus.Options.MaxBlockWeight, this.logger);
+            uint blockMaxSize = (uint)config.GetOrDefault<int>("blockmaxsize", (int)nodeSettings.Network.Consensus.Options.MaxBlockSerializedSize, this.logger);
+            uint blockMaxWeight = (uint)config.GetOrDefault<int>("blockmaxweight", (int)nodeSettings.Network.Consensus.Options.MaxBlockWeight, this.logger);
             int blockmintxfee = config.GetOrDefault<int>("blockmintxfee", (int)nodeSettings.Network.Consensus.Options.MinBlockFeeRate, this.logger);
 
             this.BlockDefinitionOptions = new BlockDefinitionOptions(blockMaxWeight, blockMaxSize, blockmintxfee).RestrictForNetwork(nodeSettings.Network);
@@ -119,6 +146,12 @@ namespace Blockcore.Features.Miner
             var builder = new StringBuilder();
 
             builder.AppendLine("-mine=<0 or 1>                      Enable POW mining.");
+            builder.AppendLine("-mineaddress=<string>               The address to use for mining (empty string to select an address from the wallet).");
+            builder.AppendLine("-minethreads=1                      Total threads to mine on (default 1).");
+            builder.AppendLine("-useopencl=<0 or 1>                 Use OpenCL for POW mining (default 0)");
+            builder.AppendLine("-opencldevice=<string>              Name of the OpenCL device to use (default first available).");
+            builder.AppendLine("-openclworksizesplit=<number>       Amount to split the work to send to the OpenCL device. Experiment with this value to find the optimum between a short execution time and big hash rate.");
+
             builder.AppendLine("-stake=<0 or 1>                     Enable POS.");
             builder.AppendLine("-mineaddress=<string>               The address to use for mining (empty string to select an address from the wallet).");
             builder.AppendLine("-walletname=<string>                The wallet name to use when staking.");
@@ -149,6 +182,14 @@ namespace Blockcore.Features.Miner
             builder.AppendLine("#stake=0");
             builder.AppendLine("#The address to use for mining (empty string to select an address from the wallet).");
             builder.AppendLine("#mineaddress=<string>");
+            builder.AppendLine("#Total threads to mine on (default 1)..");
+            builder.AppendLine("#minethreads=1");
+            builder.AppendLine("#Use OpenCL for POW mining.");
+            builder.AppendLine("#useopencl=0");
+            builder.AppendLine("#Name of the OpenCL device to use (defaults to first available).");
+            builder.AppendLine("#opencldevice=<string>");
+            builder.AppendLine("#Amount to split the work to send to the OpenCL device. Experiment with this value to find the optimum between a short execution time and big hash rate.");
+            builder.AppendLine("#openclworksizesplit=10");
             builder.AppendLine("#The wallet name to use when staking.");
             builder.AppendLine("#walletname=<string>");
             builder.AppendLine("#Password to unlock the wallet.");

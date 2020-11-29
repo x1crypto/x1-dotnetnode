@@ -93,11 +93,11 @@ namespace Blockcore.Features.Consensus.Interfaces
         /// Calculates the difficulty target for the next block.
         /// </summary>
         /// <param name="stakeChain">Database of stake related data for the current blockchain.</param>
-        /// <param name="chainedHeader">Block header for which to calculate the target difficulty.</param>
+        /// <param name="chainTip">Block header for which to calculate the target difficulty.</param>
         /// <param name="consensus">Consensus rules for the current network.</param>
         /// <param name="proofOfStake"><c>true</c> for calculation of PoS difficulty target, <c>false</c> for calculation of PoW difficulty target.</param>
-        /// <returns>The difficulty target for the next block after <paramref name="chainedHeader"/>.</returns>
-        Target GetNextTargetRequired(IStakeChain stakeChain, ChainedHeader chainedHeader, IConsensus consensus, bool proofOfStake);
+        /// <returns>The difficulty target for the next block after <paramref name="chainTip"/>.</returns>
+        Target GetNextTargetRequired(IStakeChain stakeChain, ChainedHeader chainTip, IConsensus consensus, bool proofOfStake);
 
         /// <summary>
         /// Calculates the difficulty between two block time spans.

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Blockcore.Builder;
 using Blockcore.Configuration;
@@ -27,16 +28,30 @@ namespace StratisD
             {
                 var nodeSettings = new NodeSettings(networksSelector: Networks.Xds, args: args);
 
+                // extra support during network upgrade
+                if (nodeSettings.Network is XdsMain && DateTime.UtcNow < new DateTime(2021,01,01).AddSeconds(-1))
+                {
+                    string[] extraAddnodes = { "46.101.168.197", "134.122.89.152", "161.35.156.96" };
+                    var argList = args.ToList();
+                    foreach (var ip in extraAddnodes)
+                    {
+                        argList.Add($"-addnode={ip}");
+                        argList.Add($"-whitelist={ip}");
+                    }
+                    argList.Add("iprangefiltering=0");
+                    nodeSettings =new NodeSettings(networksSelector: Networks.Xds, args: argList.ToArray());
+                }
+
                 IFullNodeBuilder nodeBuilder = new FullNodeBuilder()
-                    .UseNodeSettings(nodeSettings)
-                    .UseBlockStore()
-                    .UsePosConsensus()
-                    .UseMempool()
-                    .UseColdStakingWallet()
-                    .AddPowPosMining()
-                    .UseNodeHost()
-                    .AddRPC()
-                    .UseDiagnosticFeature();
+                        .UseNodeSettings(nodeSettings)
+                        .UseBlockStore()
+                        .UsePosConsensus()
+                        .UseMempool()
+                        .UseColdStakingWallet()
+                        .AddPowPosMining()
+                        .UseNodeHost()
+                        .AddRPC()
+                        .UseDiagnosticFeature();
 
                 await nodeBuilder.Build().RunAsync();
             }

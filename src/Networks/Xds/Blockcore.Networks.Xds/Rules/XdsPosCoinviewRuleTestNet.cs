@@ -1,43 +1,34 @@
 using Blockcore.Consensus;
 using Blockcore.Consensus.TransactionInfo;
 using Blockcore.Features.Consensus;
-using Blockcore.Features.Consensus.Rules.UtxosetRules;
 using Blockcore.Utilities;
 using Microsoft.Extensions.Logging;
 using NBitcoin;
 
 namespace Blockcore.Networks.Xds.Rules
 {
-    public class XdsPosCoinviewRule : CheckPosUtxosetRule
+    /// <summary>
+    /// The XDSTest network uses a pre-mine to catch up with the coin supply
+    /// on XDSMain (XDSTest was created almost a year later).
+    /// </summary>
+    public class XdsPosCoinviewRuleTestNet : XdsPosCoinviewRule
     {
         /// <inheritdoc />
         public override Money GetProofOfWorkReward(int height)
         {
-            int halvings = height / this.consensus.SubsidyHalvingInterval;
+            if (height == this.consensus.PremineHeight)
+                return this.consensus.PremineReward;
 
-            if (halvings >= 64)
-                return 0;
-
-            Money subsidy = this.consensus.ProofOfWorkReward;
-
-            subsidy >>= halvings;
-
-            return subsidy;
+            return base.GetProofOfWorkReward(height);
         }
 
         /// <inheritdoc />
         public override Money GetProofOfStakeReward(int height)
         {
-            int halvings = height / this.consensus.SubsidyHalvingInterval;
+            if (height == this.consensus.PremineHeight)
+                return this.consensus.PremineReward;
 
-            if (halvings >= 64)
-                return 0;
-
-            Money subsidy = this.consensus.ProofOfStakeReward;
-
-            subsidy >>= halvings;
-
-            return subsidy;
+            return base.GetProofOfStakeReward(height);
         }
 
         protected override Money GetTransactionFee(UnspentOutputSet view, Transaction tx)

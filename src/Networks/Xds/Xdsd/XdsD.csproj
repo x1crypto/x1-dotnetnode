@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <AssemblyName>blockcore.xdsd</AssemblyName>
+    <AssemblyName>xdsd</AssemblyName>
     <OutputType>Exe</OutputType>
-    <PackageId>StratisD</PackageId>
+    <PackageId>XDS Blockcore</PackageId>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -12,6 +12,14 @@
 
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
+    <PackageTags>XDS</PackageTags>
+    <PackageProjectUrl>https://github.com/xds-playgrounds</PackageProjectUrl>
+    <RepositoryUrl>git://https://github.com/xds-playgrounds/xds-blockcore-experimental</RepositoryUrl>
+    <Authors>The XDS Developers</Authors>
+    <Company>XDS</Company>
+    <Product>xdsd</Product>
+    <AssemblyVersion>1.0.16.1</AssemblyVersion>
+    <ApplicationIcon>xds-symbol-128.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>

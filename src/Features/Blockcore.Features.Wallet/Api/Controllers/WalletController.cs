@@ -83,6 +83,36 @@ namespace Blockcore.Features.Wallet.Api.Controllers
             this.dateTimeProvider = dateTimeProvider;
         }
 
+        [Route("outputs")]
+        [HttpGet]
+        public IActionResult GenerateOutputs([FromQuery] string language = "English", int wordCount = 12)
+        {
+            try
+            {
+
+
+                var split = new SplitCoinsRequest
+                {
+                    AccountName = "account 0",
+                    WalletName = "soma testnet 1",
+                    TotalAmountToSplit = "500000", // 500k->250k
+                    UtxosCount = 250,
+                    WalletPassword = "password"
+                };
+
+                var unspent = this.walletManager.GetUnspentTransactionsInWallet(split.WalletName, 1, a => true);
+                this.logger.LogInformation($"Number of utxos with 1 conf before next split: {unspent.Count()}");
+
+                return SplitCoins(split);
+            }
+            catch (Exception e)
+            {
+                this.logger.LogError("Exception occurred: {0}", e.ToString());
+                return ErrorHelpers.BuildErrorResponse(HttpStatusCode.BadRequest, e.Message, e.ToString());
+            }
+        }
+
+
         /// <summary>
         /// Generates a mnemonic to use for an HD wallet.
         /// </summary>
@@ -755,11 +785,11 @@ namespace Blockcore.Features.Wallet.Api.Controllers
                 return ModelStateErrors.BuildErrorResponse(this.ModelState);
             }
 
-            if (!this.connectionManager.ConnectedPeers.Any())
-            {
-                this.logger.LogTrace("(-)[NO_CONNECTED_PEERS]");
-                return ErrorHelpers.BuildErrorResponse(HttpStatusCode.Forbidden, "Can't send transaction: sending transaction requires at least one connection!", string.Empty);
-            }
+            //if (!this.connectionManager.ConnectedPeers.Any())
+            //{
+            //    this.logger.LogTrace("(-)[NO_CONNECTED_PEERS]");
+            //    return ErrorHelpers.BuildErrorResponse(HttpStatusCode.Forbidden, "Can't send transaction: sending transaction requires at least one connection!", string.Empty);
+            //}
 
             try
             {
@@ -1347,7 +1377,7 @@ namespace Blockcore.Features.Wallet.Api.Controllers
 
                 var recipients = new List<Recipient>(request.UtxosCount);
                 for (int i = 0; i < request.UtxosCount; i++)
-                    recipients.Add(new Recipient { ScriptPubKey = address.ScriptPubKey, Amount = singleUtxoAmount });
+                    recipients.Add(new Recipient { ScriptPubKey = new BitcoinWitPubKeyAddress(address.Bech32Address, this.network).ScriptPubKey, Amount = singleUtxoAmount });
 
                 var context = new TransactionBuildContext(this.network)
                 {
@@ -1356,7 +1386,8 @@ namespace Blockcore.Features.Wallet.Api.Controllers
                     Shuffle = true,
                     WalletPassword = request.WalletPassword,
                     Recipients = recipients,
-                    Time = (uint)this.dateTimeProvider.GetAdjustedTimeAsUnixTimestamp()
+                    Time = (uint)this.dateTimeProvider.GetAdjustedTimeAsUnixTimestamp(),
+                    UseSegwitChangeAddress = true
                 };
 
                 Transaction transactionResult = this.walletTransactionHandler.BuildTransaction(context);
@@ -1583,7 +1614,7 @@ namespace Blockcore.Features.Wallet.Api.Controllers
                 var responseModel = this.walletManager.Sweep(request.PrivateKeys, request.DestinationAddress, request.Broadcast);
                 return this.Json(responseModel);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 this.logger.LogError("Exception occurred: {0}", e.ToString());
                 return ErrorHelpers.BuildErrorResponse(HttpStatusCode.BadRequest, e.Message, e.ToString());

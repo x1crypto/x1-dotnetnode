@@ -60,6 +60,10 @@ namespace Blockcore.Networks.Xds.Rules
             if (raw[0] == (byte)OpcodeType.OP_RETURN)
                 return true;
 
+            // WITNESS_V1_TAPROOT
+            if (raw.Length == 34 && raw[0] == 1)
+                return true;
+
             return false;
         }
     }

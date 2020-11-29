@@ -398,6 +398,17 @@ namespace Blockcore.Features.Miner.Staking
 
                 ChainedHeader chainTip = this.consensusManager.Tip;
 
+                // Check if staking is allowed at this block height, if applicable
+                if (this.network.Consensus.Options is PosConsensusOptions options)
+                {
+                    var newBlockHeight = chainTip.Height + 1;
+                    if (!options.IsAlgorithmAllowed(true, newBlockHeight))
+                    {
+                        await Task.Delay(TimeSpan.FromMilliseconds(this.minerSleep), cancellationToken).ConfigureAwait(false);
+                        continue;
+                    }
+                }
+
                 if (this.lastCoinStakeSearchPrevBlockHash != chainTip.HashBlock)
                 {
                     this.lastCoinStakeSearchPrevBlockHash = chainTip.HashBlock;

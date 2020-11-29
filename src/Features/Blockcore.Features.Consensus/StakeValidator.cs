@@ -136,12 +136,25 @@ namespace Blockcore.Features.Consensus
         }
 
         /// <inheritdoc/>
-        public Target GetNextTargetRequired(IStakeChain stakeChain, ChainedHeader chainedHeader, IConsensus consensus, bool proofOfStake)
+        public Target GetNextTargetRequired(IStakeChain stakeChain, ChainedHeader chainTip, IConsensus consensus, bool proofOfStake)
         {
             Guard.NotNull(stakeChain, nameof(stakeChain));
 
+            // If the chain uses a PosPowRatchet, we branch away here, 4 blocks after it has activated. A safe delta of 4
+            // is used, so that when we iterate over blocks backwards, we'll never hit non-Ratchet blocks.
+            if (consensus.Options is PosConsensusOptions options &&
+                options.IsPosPowRatchetActiveAtHeight(chainTip.Height - 4))
+            {
+                bool isChainTipProofOfStake = stakeChain.Get(chainTip.HashBlock).IsProofOfStake();
+                if(isChainTipProofOfStake && chainTip.Height % 2 != 0 || !isChainTipProofOfStake && chainTip.Height % 2 == 0)
+                    throw new InvalidOperationException("Misconfiguration: When the ratchet is active for a height, the convention that PoS block heights are even numbers, must be met.");
+
+                return options.GetNextTargetRequired(chainTip, isChainTipProofOfStake, consensus, proofOfStake);
+            }
+
+
             // Genesis block.
-            if (chainedHeader == null)
+            if (chainTip == null)
             {
                 this.logger.LogTrace("(-)[GENESIS]:'{0}'", consensus.PowLimit);
                 return consensus.PowLimit;
@@ -154,7 +167,7 @@ namespace Blockcore.Features.Consensus
                 : consensus.PowLimit.ToBigInteger();
 
             // First block.
-            ChainedHeader lastPowPosBlock = this.GetLastPowPosChainedBlock(stakeChain, chainedHeader, proofOfStake);
+            ChainedHeader lastPowPosBlock = this.GetLastPowPosChainedBlock(stakeChain, chainTip, proofOfStake);
             if (lastPowPosBlock.Previous == null)
             {
                 var res = new Target(targetLimit);

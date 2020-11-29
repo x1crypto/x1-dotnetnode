@@ -1,4 +1,8 @@
-﻿using Blockcore.Networks;
+﻿using System;
+using Blockcore.Consensus.Chain;
+using Blockcore.Networks;
+using Microsoft.Extensions.Logging;
+using NBitcoin;
 
 namespace Blockcore.Consensus
 {
@@ -105,6 +109,36 @@ namespace Blockcore.Consensus
                 return height < CoinstakeMinConfirmationActivationHeightTestnet ? 10 : 20;
 
             return height < CoinstakeMinConfirmationActivationHeightMainnet ? 50 : 500;
+        }
+
+        /// <summary>
+        /// In networks with alternating Proof-of-Stake/Proof-of-Work blocks, this method returns if
+        /// the algorithm is allowed at the given height for the given block.
+        /// </summary>
+        /// <param name="isProofOfStake">if the algorithm is Proof-of-Stake (true) or Proof-of-Work (false)</param>
+        /// <param name="newBlockHeight">the height of the block for which the algorithm can be allowed or not</param>
+        /// <returns>true, if allowed, otherwise false. Returns always true if not overriden.</returns>
+        public virtual bool IsAlgorithmAllowed(bool isProofOfStake, int newBlockHeight)
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// If the PosPowRatchet rules are active at a block height.
+        /// </summary>
+        /// <returns>false by default, may return true if overriden</returns>
+        public virtual bool IsPosPowRatchetActiveAtHeight(int chainTipHeight)
+        {
+            return false;
+        }
+
+        /// <summary>
+        /// Extension point for IStakeValidator.GetNextTargetRequired(). Will only be called if IsPosPowRatchetActiveAtHeight() returns true.
+        /// </summary>
+        /// <returns>null, if not overridden</returns>
+        public virtual Target GetNextTargetRequired(ChainedHeader currentChainTip, bool isChainTipProofOfStake, IConsensus consensus, bool isTargetRequestedForProofOfStake)
+        {
+            return null;
         }
     }
 }

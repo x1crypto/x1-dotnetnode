@@ -179,7 +179,8 @@ namespace Blockcore.Configuration.Settings
         {
             lock (this.addNodeLock)
             {
-                this.addNode.Add(addNode);
+                if (!this.addNode.Contains(addNode))
+                    this.addNode.Add(addNode);
             }
         }
 

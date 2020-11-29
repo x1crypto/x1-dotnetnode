@@ -35,6 +35,7 @@ namespace Blockcore.Networks.Xds
         public XdsMain()
         {
             this.Name = nameof(XdsMain);
+            this.NetworkType = NetworkType.Mainnet;
             this.CoinTicker = "XDS";
             this.RootFolderName = "xds";
             this.DefaultConfigFilename = "xds.conf";
@@ -47,6 +48,12 @@ namespace Blockcore.Networks.Xds
             this.MaxTimeOffsetSeconds = 25 * 60;
             this.DefaultBanTimeSeconds = 8000;
             this.MaxTipAge = 2 * 60 * 60;
+
+            if (DateTime.UtcNow > new DateTime(2020, 12, 18) && DateTime.UtcNow < new DateTime(2020, 12, 25))
+            {
+                this.MaxTipAge = 5 * 24 * 60 * 60; // value during consensus update: 5 days
+            }
+
             this.MinTxFee = Money.Coins(0.00001m).Satoshi;
             this.MaxTxFee = Money.Coins(1).Satoshi;
             this.FallbackFee = Money.Coins(0.00001m).Satoshi;
@@ -59,9 +66,9 @@ namespace Blockcore.Networks.Xds
             this.GenesisBits = new Target(new uint256("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
             this.GenesisVersion = 1;
             this.GenesisReward = Money.Zero;
-            this.Genesis = consensusFactory.ComputeGenesisBlock(this.GenesisTime, this.GenesisNonce, this.GenesisBits, this.GenesisVersion, this.GenesisReward);
+            this.Genesis = consensusFactory.ComputeGenesisBlock(this.GenesisTime, this.GenesisNonce, this.GenesisBits, this.GenesisVersion, this.GenesisReward, NetworkType.Mainnet);
 
-            var consensusOptions = new XdsConsensusOptions
+            var consensusOptions = new XdsConsensusOptions(this)
             {
                 MaxBlockBaseSize = 1_000_000,
                 MaxStandardVersion = 2,
@@ -111,7 +118,7 @@ namespace Blockcore.Networks.Xds
                 premineHeight: 0,
                 premineReward: Money.Coins(0),
                 proofOfWorkReward: Money.Coins(50),
-                targetTimespan: TimeSpan.FromSeconds(14 * 24 * 60 * 60),
+                targetTimespan: TimeSpan.FromSeconds(256 * 338),
                 targetSpacing: TimeSpan.FromSeconds(256),
                 powAllowMinDifficultyBlocks: false,
                 posNoRetargeting: false,
@@ -184,6 +191,7 @@ namespace Blockcore.Networks.Xds
                 .Register<CheckPosTransactionRule>()
                 .Register<CheckSigOpsRule>()
                 .Register<PosCoinstakeRule>()
+                .Register<XdsPosPowRatchetRule>()
                 .Register<SetActivationDeploymentsFullValidationRule>()
                 .Register<CheckDifficultyHybridRule>()
 #pragma warning disable CS0618 // Type or member is obsolete

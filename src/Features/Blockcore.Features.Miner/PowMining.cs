@@ -220,7 +220,7 @@ namespace Blockcore.Features.Miner
                 return true;
 
             // we need to wait, give the cpu a little rest before we check again
-            Task.Delay(1000);
+            Task.Delay(1000).Wait();
             return false;
         }
 

@@ -13,6 +13,7 @@ using Blockcore.Networks.Xds.Consensus;
 using Blockcore.Networks.Xds.Deployments;
 using Blockcore.Networks.Xds.Policies;
 using Blockcore.Networks.Xds.Rules;
+using Blockcore.Networks.Xds.Rules.New;
 using Blockcore.P2P;
 using NBitcoin;
 using NBitcoin.BouncyCastle.Math;
@@ -100,8 +101,8 @@ namespace Blockcore.Networks.Xds
                 defaultAssumeValid: uint256.Zero,
                 maxMoney: long.MaxValue,
                 coinbaseMaturity: 50,
-                premineHeight: 0,
-                premineReward: Money.Coins(0),
+                premineHeight: 1,
+                premineReward: Money.Coins(/* current XDSMain height */ 158188 * 50),
                 proofOfWorkReward: Money.Coins(50),
                 targetTimespan: TimeSpan.FromSeconds(14 * 24 * 60 * 60),
                 targetSpacing: TimeSpan.FromSeconds(256),
@@ -173,13 +174,14 @@ namespace Blockcore.Networks.Xds
                 .Register<CheckPosTransactionRule>()
                 .Register<CheckSigOpsRule>()
                 .Register<PosCoinstakeRule>()
+                .Register<XdsPosPowRatchetRule>() // <-------------------- this PartialValidationRule enforces that even block heights must be Pos and odd one PoW
                 .Register<SetActivationDeploymentsFullValidationRule>()
                 .Register<CheckDifficultyHybridRule>()
 #pragma warning disable CS0618 // Type or member is obsolete
                 .Register<LoadCoinviewRule>()
 #pragma warning restore CS0618 // Type or member is obsolete
                 .Register<TransactionDuplicationActivationRule>()
-                .Register<XdsPosCoinviewRule>()
+                .Register<XdsPosCoinviewRuleTestNet>() // <---------------- this pulls  premineHeight: 1,  premineReward: Money.Coins(/* current XDSMain height */ 158188 * 50)
                 .Register<PosColdStakingRule>()
 #pragma warning disable CS0618 // Type or member is obsolete
                 .Register<SaveCoinviewRule>();

@@ -181,7 +181,7 @@ namespace Blockcore.Features.Miner
                 if (!this.BuildBlock(context))
                     continue;
 
-                if(!this.EnsurePreviousBlockIsProofOfStake(context))
+                if (!this.IsProofOfWorkAllowed(context))
                     continue;
 
                 if (!this.MineBlock(context))
@@ -199,29 +199,20 @@ namespace Blockcore.Features.Miner
             return context.Blocks;
         }
 
-        /// <summary>
-        /// This method returns true if mining is appropriate.
-        /// See how XdsPosPowRatchetRule enforces that PoS and PoW blocks
-        /// are alternating by using even (PoS) and odd (PoW) block numbers.
-        /// </summary>
-        /// <returns>true, if mining is allowed</returns>
-        private bool EnsurePreviousBlockIsProofOfStake(MineBlockContext context)
+        private bool IsProofOfWorkAllowed(MineBlockContext context)
         {
-            if (this.network.Name != "XdsTest")
-                return true;
+            var newBlockHeight = context.ChainTip.Height + 1;
 
-            const int posPowRatchetStartHeight = 130; // blocks beginning at this height must observe XdsPosPowRatchetRule
+            if (this.network.Consensus.Options is PosConsensusOptions options)
+            {
+                if (options.IsAlgorithmAllowed(false, newBlockHeight))
+                    return true;
 
-            var newBlockHeight = context.ChainTip.Height + 1; // the block we want to mine
-            if (newBlockHeight < posPowRatchetStartHeight)
-                return true;
+                Task.Delay(1000).Wait(); // pause the miner
+                return false;
+            }
 
-            if (newBlockHeight % 2 != 0) // the new block height is odd, we can mine!
-                return true;
-
-            // we need to wait, give the cpu a little rest before we check again
-            Task.Delay(1000).Wait();
-            return false;
+            return true;
         }
 
 

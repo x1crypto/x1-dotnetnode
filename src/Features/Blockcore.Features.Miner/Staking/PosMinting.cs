@@ -398,18 +398,16 @@ namespace Blockcore.Features.Miner.Staking
 
                 ChainedHeader chainTip = this.consensusManager.Tip;
 
-                // start XdsPosPowRatchetRule code
-
-                const int posPowRatchetStartHeight = 130;
-                var newBlockHeight = chainTip.Height + 1;
-                var canStake = newBlockHeight % 2 == 0; // new block height is even and must be PoS
-                if (!canStake && newBlockHeight >= posPowRatchetStartHeight)
+                // Check if staking is allowed at this block height, if applicable
+                if (this.network.Consensus.Options is PosConsensusOptions options)
                 {
-                    await Task.Delay(TimeSpan.FromMilliseconds(this.minerSleep), cancellationToken).ConfigureAwait(false);
-                    continue;
+                    var newBlockHeight = chainTip.Height + 1;
+                    if (!options.IsAlgorithmAllowed(true, newBlockHeight))
+                    {
+                        await Task.Delay(TimeSpan.FromMilliseconds(this.minerSleep), cancellationToken).ConfigureAwait(false);
+                        continue;
+                    }
                 }
-
-                // end XdsPosPowRatchetRule code
 
                 if (this.lastCoinStakeSearchPrevBlockHash != chainTip.HashBlock)
                 {
@@ -544,19 +542,6 @@ namespace Blockcore.Features.Miner.Staking
                 this.logger.LogTrace("(-)[NO_PREV_STAKE]");
                 ConsensusErrors.PrevStakeNull.Throw();
             }
-
-            // start XdsPosPowRatchetRule code
-
-            const int posPowRatchetStartHeight = 130;
-            var newBlockHeight = chainTip.Height + 1;
-            var canStake = newBlockHeight % 2 == 0; // new block height is even and must be PoS
-            if (!canStake && newBlockHeight >= posPowRatchetStartHeight)
-            {
-                this.logger.LogDebug("Previous block is not PoW, not using the stake.");
-                return;
-            }
-
-            // end XdsPosPowRatchetRule code
 
             // Validate the block.
             ChainedHeader chainedHeader = await this.consensusManager.BlockMinedAsync(block).ConfigureAwait(false);

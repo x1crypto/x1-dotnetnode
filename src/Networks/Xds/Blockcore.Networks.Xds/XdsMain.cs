@@ -62,7 +62,7 @@ namespace Blockcore.Networks.Xds
             this.GenesisReward = Money.Zero;
             this.Genesis = consensusFactory.ComputeGenesisBlock(this.GenesisTime, this.GenesisNonce, this.GenesisBits, this.GenesisVersion, this.GenesisReward, NetworkType.Mainnet);
 
-            var consensusOptions = new XdsConsensusOptions
+            var consensusOptions = new XdsConsensusOptions(this)
             {
                 MaxBlockBaseSize = 1_000_000,
                 MaxStandardVersion = 2,

@@ -40,7 +40,7 @@ namespace Blockcore.Networks.Xds
             this.MaxTimeOffsetSeconds = 25 * 60;
             this.DefaultBanTimeSeconds = 8000;
             this.MaxTipAge = int.MaxValue;
-            this.MinTxFee = Money.Coins(0.00001m).Satoshi;
+            this.MinTxFee = Money.Coins(0.01m).Satoshi;
             this.MaxTxFee = Money.Coins(1).Satoshi;
             this.FallbackFee = Money.Coins(0.00001m).Satoshi;
             this.MinRelayTxFee = Money.Coins(0.00001m).Satoshi;
@@ -54,7 +54,7 @@ namespace Blockcore.Networks.Xds
             this.GenesisReward = Money.Zero;
             this.Genesis = consensusFactory.ComputeGenesisBlock(this.GenesisTime, this.GenesisNonce, this.GenesisBits, this.GenesisVersion, this.GenesisReward, NetworkType.Testnet);
 
-            var consensusOptions = new XdsConsensusOptions
+            var consensusOptions = new XdsConsensusOptions(this)
             {
                 MaxBlockBaseSize = 1_000_000,
                 MaxStandardVersion = 2,
@@ -142,6 +142,7 @@ namespace Blockcore.Networks.Xds
             this.DNSSeeds = new List<DNSSeedData>();
             this.SeedNodes = new List<NetworkAddress>
             {
+                new NetworkAddress(IPAddress.Parse("46.101.168.197"), this.DefaultPort),
             };
 
             RegisterRules(this.Consensus);

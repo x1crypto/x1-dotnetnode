@@ -106,5 +106,17 @@ namespace Blockcore.Consensus
 
             return height < CoinstakeMinConfirmationActivationHeightMainnet ? 50 : 500;
         }
+
+        /// <summary>
+        /// In networks with alternating Proof-of-Stake/Proof-of-Work blocks, this method returns if
+        /// the algorithm is allowed at the given height for the given block.
+        /// </summary>
+        /// <param name="isProofOfStake">if the algorithm is Proof-of-Stake (true) or Proof-of-Work (false)</param>
+        /// <param name="newBlockHeight">the height of the block for which the algorithm can be allowed or not</param>
+        /// <returns>true, if allowed, otherwise false. Returns always true if not overriden.</returns>
+        public virtual bool IsAlgorithmAllowed(bool isProofOfStake, int newBlockHeight)
+        {
+            return true;
+        }
     }
 }

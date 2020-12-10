@@ -6,41 +6,44 @@ using Blockcore.Consensus;
 using Blockcore.Consensus.BlockInfo;
 using Blockcore.Consensus.Rules;
 using Blockcore.Consensus.ScriptInfo;
+using Blockcore.Features.Consensus.Rules;
 using Microsoft.Extensions.Logging;
 using Blockcore.Features.Consensus.Rules.CommonRules;
+using Blockcore.Utilities;
 
 namespace Blockcore.Networks.Xds.Rules.New
 {
     public class XdsPosPowRatchetRule : PartialValidationConsensusRule
     {
-        /// <summary>
-        /// The block height (inclusive), where the PosPowRatchet algorithm starts).
-        /// </summary>
-        public const int PosPowRatchetStartHeight = 130;
+        private PosConsensusOptions posConsensusOptions;
+
+        /// <inheritdoc />
+        public override void Initialize()
+        {
+            this.posConsensusOptions = (this.Parent as PosConsensusRuleEngine)?.Network.Consensus.Options as PosConsensusOptions;
+            if(this.posConsensusOptions == null)
+                throw new ArgumentNullException(nameof(this.posConsensusOptions));
+        }
 
         public override Task RunAsync(RuleContext context)
         {
             if (context.SkipValidation)
                 return Task.CompletedTask;
 
-            // Check for consistency
+            // Check consistency of ChainedHeader height and the height written in the coinbase tx
             var newHeight = GetHeightOfBlockToValidateSafe(context);
-
-            // are we there?
-            if (newHeight < PosPowRatchetStartHeight)
-                return Task.CompletedTask;
-
+            
+            // Get the algorithm of the block we are looking at
             bool isProofOfStake = BlockStake.IsProofOfStake(context.ValidationContext.BlockToValidate);
 
-            bool isEvenHeight = newHeight % 2 == 0;
-
-            if (isEvenHeight && isProofOfStake)     // even block heights must be Proof-of-Stake
-                return Task.CompletedTask;          // ok, Proof-of-Stake
-
-            if (!isEvenHeight && !isProofOfStake)   // odd block heights must be Proof-of-Work
-                return Task.CompletedTask;          // ok, Proof-of-Work
-
-            // ohh no!
+            // Check if there is a rule active, and if so, check if the algorithm is allowed at this height
+            if (this.posConsensusOptions.IsAlgorithmAllowed(isProofOfStake, newHeight))
+            {
+                // yes, rule passed
+                return Task.CompletedTask;
+            }
+               
+            // no, this block is not acceptable
             this.Logger.LogTrace("(-)[BAD-POS-POW-RATCHET-SEQUENCE]");
             XdsConsensusErrors.BadPosPowRatchetSequence.Throw();
 

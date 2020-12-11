@@ -115,8 +115,12 @@ namespace Blockcore.Networks.Xds.Consensus
                 return lastPowPosBlock.Header.Bits;
             }
 
-            // The middle block, the block with the other algo in between frst and second
-            ChainedHeader middleBlock = GetLastPowPosChainedBlock(stakeChain, chainedHeader, !proofOfStake);
+            // the middle block, the block with the other algorithm in between first and second block of the algorithm
+            ChainedHeader middleBlock = lastPowPosBlock.Previous;
+
+            // sanity checks
+            Debug.Assert(stakeChain.Get(middleBlock.HashBlock).IsProofOfStake() != stakeChain.Get(lastPowPosBlock.HashBlock).IsProofOfStake());
+            Debug.Assert(stakeChain.Get(middleBlock.HashBlock).IsProofOfStake() != stakeChain.Get(prevLastPowPosBlock.HashBlock).IsProofOfStake());
             Debug.Assert(middleBlock != null, "can't be null, second block is older than middle block");
             Debug.Assert(lastPowPosBlock.Height == middleBlock.Height +1, "middle block height must be 1 less than first block");
             Debug.Assert(prevLastPowPosBlock.Height == middleBlock.Height - 1, "middle block height must be 1 more than second block");

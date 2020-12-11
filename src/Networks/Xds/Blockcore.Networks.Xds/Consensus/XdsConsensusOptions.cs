@@ -140,7 +140,7 @@ namespace Blockcore.Networks.Xds.Consensus
 
             // Bitcoin TargetTimespan / Bitcoin TargetSpacing = 1,209,600 / 600 = 2016.
             // We'll lock at 2016 block intervals of an algorithm, or less, if we have less blocks.
-            int numberOfInterVals = Math.Min(lastPowPosChainedBlock.Height / 2 - 205, 2016); // adjust 2016 down so that we do not run out off blocks iterating back     
+            int numberOfInterVals = chainedHeader.Height > 705 ? 64 : Math.Min(lastPowPosChainedBlock.Height / 2 - 205, 2016); // adjust 2016 down so that we do not run out off blocks iterating back     
             var targetSpacingSeconds = 256;     // we are targeting an interval of 256 seconds between blocks
             var targetTimespanTotalSeconds = numberOfInterVals * targetSpacingSeconds; // the total time for 2016 blocks should be 2016 * 256 = 516,096 seconds = 5 days, 23h, 21m 36s
 

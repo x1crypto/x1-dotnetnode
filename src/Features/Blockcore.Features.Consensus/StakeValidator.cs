@@ -140,6 +140,10 @@ namespace Blockcore.Features.Consensus
         {
             Guard.NotNull(stakeChain, nameof(stakeChain));
 
+            // Networks might use custom method to calculate the next Target.
+            if (consensus.Options is PosConsensusOptions options && options.UseCustomRetarget(chainedHeader.Height))
+                return options.GetNextTargetRequired(stakeChain, chainedHeader, consensus, proofOfStake, this.logger);
+
             // Genesis block.
             if (chainedHeader == null)
             {

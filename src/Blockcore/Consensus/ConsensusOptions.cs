@@ -1,4 +1,8 @@
-﻿using Blockcore.Networks;
+﻿using System;
+using Blockcore.Consensus.Chain;
+using Blockcore.Networks;
+using Microsoft.Extensions.Logging;
+using NBitcoin;
 
 namespace Blockcore.Consensus
 {
@@ -117,6 +121,25 @@ namespace Blockcore.Consensus
         public virtual bool IsAlgorithmAllowed(bool isProofOfStake, int newBlockHeight)
         {
             return true;
+        }
+
+        /// <summary>
+        /// If the network uses a custom algorithm for NextTargetRequired.
+        /// </summary>
+        /// <returns>false by default, may return true if overriden</returns>
+        public virtual bool UseCustomRetarget(int height)
+        {
+            return false;
+        }
+
+        /// <summary>
+        /// Extension point for IStakeValidator.GetNextTargetRequired(). Will only be called if UseCustomRetarget() returns true.
+        /// </summary>
+        /// <returns>null, if not overridden</returns>
+        public virtual Target GetNextTargetRequired<T>(T stakeChain, ChainedHeader chainedHeader,
+            IConsensus consensus, bool proofOfStake, ILogger logger)
+        {
+            return null;
         }
     }
 }

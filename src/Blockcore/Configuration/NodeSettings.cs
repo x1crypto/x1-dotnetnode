@@ -128,7 +128,7 @@ namespace Blockcore.Configuration
         /// - Alternatively, if the file name is not supplied then a network-specific file
         ///   name would be determined. In this case we first need to determine the network.
         /// </remarks>
-        public NodeSettings(Network network = null, string agent = "XDS Blockcore",
+        public NodeSettings(Network network = null, string agent = "X1-Blockcore",
             string[] args = null, NetworksSelector networksSelector = null)
         {
             // Create the default logger factory and logger.
@@ -151,7 +151,7 @@ namespace Blockcore.Configuration
             // but both the data directory and the configuration file path may be changed using the -datadir and -conf command-line arguments.
             this.ConfigurationFile = this.ConfigReader.GetOrDefault<string>("conf", null, this.Logger)?.NormalizeDirectorySeparator();
             this.DataDir = this.ConfigReader.GetOrDefault<string>("datadir", null, this.Logger)?.NormalizeDirectorySeparator();
-            this.DataDirRoot = this.ConfigReader.GetOrDefault<string>("datadirroot", "XDS-Blockcore", this.Logger);
+            this.DataDirRoot = this.ConfigReader.GetOrDefault<string>("datadirroot", "X1-Blockcore", this.Logger);
 
             // If the configuration file is relative then assume it is relative to the data folder and combine the paths.
             if (this.DataDir != null && this.ConfigurationFile != null)

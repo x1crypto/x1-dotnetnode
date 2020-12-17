@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>x1d</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <PackageId>X1-Blockcore</PackageId>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702;1705;IDE0008;</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <PackageTags>X1;x1crypto</PackageTags>
+    <PackageProjectUrl>http://x1crypto.com</PackageProjectUrl>
+    <RepositoryUrl>git://github.com/x1crypto/x1-blockcore</RepositoryUrl>
+    <Authors>x1crypto</Authors>
+    <Company>X1</Company>
+    <Product>x1d</Product>
+    <AssemblyVersion>1.1.16.1</AssemblyVersion>
+    <ApplicationIcon>x1-symbol-128.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Blockcore\Blockcore.csproj" />
+    <ProjectReference Include="..\..\Features\Blockcore.Features.BlockStore\Blockcore.Features.BlockStore.csproj" />
+    <ProjectReference Include="..\..\Features\Blockcore.Features.ColdStaking\Blockcore.Features.ColdStaking.csproj" />
+    <ProjectReference Include="..\..\Features\Blockcore.Features.Consensus\Blockcore.Features.Consensus.csproj" />
+    <ProjectReference Include="..\..\Features\Blockcore.Features.Diagnostic\Blockcore.Features.Diagnostic.csproj" />
+    <ProjectReference Include="..\..\Features\Blockcore.Features.MemoryPool\Blockcore.Features.MemoryPool.csproj" />
+    <ProjectReference Include="..\..\Features\Blockcore.Features.Miner\Blockcore.Features.Miner.csproj" />
+    <ProjectReference Include="..\..\Features\Blockcore.Features.NodeHost\Blockcore.Features.NodeHost.csproj" />
+    <ProjectReference Include="..\..\Features\Blockcore.Features.RPC\Blockcore.Features.RPC.csproj" />
+    <ProjectReference Include="..\..\Features\Blockcore.Features.Wallet\Blockcore.Features.Wallet.csproj" />
+    <ProjectReference Include="..\X1Network\X1.X1Network.csproj" />
+  </ItemGroup>
+</Project>

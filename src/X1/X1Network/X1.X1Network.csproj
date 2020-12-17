@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyTitle>X1.X1Network</AssemblyTitle>
+    <AssemblyName>X1.X1Network</AssemblyName>
+    <PackageId>X1.X1Network</PackageId>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <IsPackable>true</IsPackable>
+    <PackageTags>x1crypto</PackageTags>
+    <AssemblyVersion>1.1.16.0</AssemblyVersion>
+    <FileVersion>1.1.16.0</FileVersion>
+    <RepositoryUrl>git://github.com/x1crypto/x1-blockcore</RepositoryUrl>
+    <PackageProjectUrl>http://x1crypto.com</PackageProjectUrl>
+    <Authors>x1crypto</Authors>
+    <Version>1.1.16</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="icon.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Features\Blockcore.Features.Consensus\Blockcore.Features.Consensus.csproj" />
+    <ProjectReference Include="..\..\Features\Blockcore.Features.MemoryPool\Blockcore.Features.MemoryPool.csproj" />
+  </ItemGroup>
+</Project>

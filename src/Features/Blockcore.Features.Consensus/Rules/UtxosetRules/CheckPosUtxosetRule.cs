@@ -59,7 +59,6 @@ namespace Blockcore.Features.Consensus.Rules.UtxosetRules
                 Money stakeReward = block.Transactions[1].TotalOut - posRuleContext.TotalCoinStakeValueIn;
                 Money calcStakeReward = fees + this.GetProofOfStakeReward(height);
 
-                this.Logger.LogDebug("Block stake reward is {0}, calculated reward is {1}.", stakeReward, calcStakeReward);
                 if (stakeReward > calcStakeReward)
                 {
                     this.Logger.LogTrace("(-)[BAD_COINSTAKE_AMOUNT]");
@@ -69,7 +68,6 @@ namespace Blockcore.Features.Consensus.Rules.UtxosetRules
             else
             {
                 Money blockReward = fees + this.GetProofOfWorkReward(height);
-                this.Logger.LogDebug("Block reward is {0}, calculated reward is {1}.", block.Transactions[0].TotalOut, blockReward);
                 if (block.Transactions[0].TotalOut > blockReward)
                 {
                     this.Logger.LogTrace("(-)[BAD_COINBASE_AMOUNT]");

@@ -38,20 +38,15 @@ namespace X1.X1Network
             this.CoinTicker = "X1";
             this.RootFolderName = "X1";
             this.DefaultConfigFilename = "x1.conf";
-            this.Magic = 0x58445331; // move to 58 31 58 31 (X1X1) XDS: 0x58445331
-            this.DefaultPort = 23333;
-            this.DefaultRPCPort = 43333;
-            this.DefaultAPIPort = 43334;
+            this.Magic = 0x58315831; // moved to 58315831 (X1X1) XDS: 0x58445331
+            this.DefaultPort = 23333; // new
+            this.DefaultRPCPort = 43333; // new 
+            this.DefaultAPIPort = 43334; // new
             this.DefaultMaxOutboundConnections = 16;
             this.DefaultMaxInboundConnections = 109;
             this.MaxTimeOffsetSeconds = 25 * 60;
             this.DefaultBanTimeSeconds = 8000;
-            this.MaxTipAge = 2 * 60 * 60;
-
-            if (DateTime.UtcNow > new DateTime(2020, 12, 18) && DateTime.UtcNow < new DateTime(2020, 12, 25))
-            {
-                this.MaxTipAge = 5 * 24 * 60 * 60; // value during consensus update: 5 days
-            }
+            this.MaxTipAge = 24 * 60 * 60;
 
             this.MinTxFee = Money.Coins(0.00001m).Satoshi;
             this.MaxTxFee = Money.Coins(1).Satoshi;

@@ -92,6 +92,25 @@ namespace X1.X1Network.Consensus
             return false;
         }
 
+        double GetTargetTimespanTotalSeconds(int height)
+        {
+            return GetTargetSpacingTotalSeconds(height) * 338;
+        }
+
+       
+        double GetTargetSpacingTotalSeconds(int height)
+        {
+            if (this.currentNetwork.NetworkType != NetworkType.Mainnet)
+                return this.currentNetwork.Consensus.TargetSpacing.TotalSeconds; // 256 seconds
+
+            // X1 Main
+            if (height < 165740)
+                return this.currentNetwork.Consensus.TargetSpacing.TotalSeconds; // 256 seconds
+
+            return TimeSpan.FromMinutes(10).TotalSeconds; // 600 seconds
+        }
+
+
         private readonly object lockObj = new object();
 
         public override Target GetNextTargetRequired(ChainedHeader currentChainTip, bool isChainTipProofOfStake, IConsensus consensus, bool isTargetRequestedForProofOfStake)
@@ -147,7 +166,7 @@ namespace X1.X1Network.Consensus
 
         private Target GetNextWorkRequired(ChainedHeader lastPowBlock, IConsensus consensus)
         {
-            int difficultyAdjustmentInterval = (int)(consensus.TargetTimespan.TotalSeconds / consensus.TargetSpacing.TotalSeconds);
+            int difficultyAdjustmentInterval = (int)(GetTargetTimespanTotalSeconds(lastPowBlock.Height) / GetTargetSpacingTotalSeconds(lastPowBlock.Height));
 
             // Only change once per difficulty adjustment interval
             if ((lastPowBlock.Height + 1) % difficultyAdjustmentInterval != 0)
@@ -157,7 +176,7 @@ namespace X1.X1Network.Consensus
                     // Special difficulty rule for testnet:
                     // If the new block's timestamp is more than 2 * TargetSpacing.TotalSeconds,
                     // then allow mining of a min-difficulty block.
-                    if (lastPowBlock.Header.Time > lastPowBlock.Header.Time + consensus.TargetSpacing.TotalSeconds * 2)
+                    if (lastPowBlock.Header.Time > lastPowBlock.Header.Time + GetTargetSpacingTotalSeconds(lastPowBlock.Height) * 2)
                         return consensus.PowLimit;
                     else
                     {
@@ -241,12 +260,12 @@ namespace X1.X1Network.Consensus
             var adjustedPrevLastPowPosBlockTime = prevLastPosBlock.Header.Time + powGapSeconds;
 
             // pass in adjustedPrevLastPowPosBlockTime instead of the timestamp of the second block, and continue as normal
-            return CalculatePosRetarget(lastPosBlock.Header.Time, lastPosBlock.Header.Bits, adjustedPrevLastPowPosBlockTime, consensus.ProofOfStakeLimitV2);
+            return CalculatePosRetarget(lastPosBlock.Header.Time, lastPosBlock.Header.Bits, adjustedPrevLastPowPosBlockTime, consensus.ProofOfStakeLimitV2, lastPosBlock.Height);
         }
 
-        private Target CalculatePosRetarget(uint lastBlockTime, Target lastBlockTarget, uint previousBlockTime, BigInteger targetLimit)
+        private Target CalculatePosRetarget(uint lastBlockTime, Target lastBlockTarget, uint previousBlockTime, BigInteger targetLimit, int height)
         {
-            uint targetSpacing = (uint)this.currentNetwork.Consensus.TargetSpacing.TotalSeconds; // = 256
+            uint targetSpacing = (uint)GetTargetSpacingTotalSeconds(height); // = 256s or 10 minutes after hf
             uint actualSpacing = lastBlockTime - previousBlockTime; // this is never 0 or negative because that's a consensus rule
 
             // Limit the adjustment step by capping input values that are far from the average.
@@ -281,17 +300,19 @@ namespace X1.X1Network.Consensus
                 return lastPowBlock.Header.Bits;
             }
 
+            int height = lastPowBlock.Height;
+
             // Limit adjustment step
             long nActualTimespan = lastPowBlock.Header.Time - nFirstBlockTime;
-            if (nActualTimespan < consensus.TargetTimespan.TotalSeconds / 4)
-                nActualTimespan = (uint)consensus.TargetTimespan.TotalSeconds / 4;
-            if (nActualTimespan > consensus.TargetTimespan.TotalSeconds * 4)
-                nActualTimespan = (uint)consensus.TargetTimespan.TotalSeconds * 4;
+            if (nActualTimespan < GetTargetTimespanTotalSeconds(height) / 4)
+                nActualTimespan = (uint)GetTargetTimespanTotalSeconds(height) / 4;
+            if (nActualTimespan > GetTargetTimespanTotalSeconds(height) * 4)
+                nActualTimespan = (uint)GetTargetTimespanTotalSeconds(height) * 4;
 
             // Retarget
             var bnNew = lastPowBlock.Header.Bits.ToBigInteger();
             bnNew = bnNew.Multiply(BigInteger.ValueOf(nActualTimespan));
-            bnNew = bnNew.Divide(BigInteger.ValueOf((long)consensus.TargetTimespan.TotalSeconds));
+            bnNew = bnNew.Divide(BigInteger.ValueOf((long)GetTargetTimespanTotalSeconds(height)));
 
             var finalTarget = new Target(bnNew);
             if (finalTarget > consensus.PowLimit)

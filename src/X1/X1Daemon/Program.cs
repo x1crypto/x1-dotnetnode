@@ -28,7 +28,7 @@ namespace X1.X1Daemon
                 var nodeSettings = new NodeSettings(networksSelector: Networks.X1, args: args);
 
                 // extra support during network upgrade
-                if (nodeSettings.Network is X1Main && DateTime.UtcNow < new DateTime(2021,01,01).AddSeconds(-1))
+                if (nodeSettings.Network is X1Main && DateTime.UtcNow < new DateTime(2021,03,01).AddSeconds(-1)) // till end of Feb
                 {
                     string[] extraAddnodes = { "46.101.168.197", "134.122.89.152", "161.35.156.96" };
                     var argList = args.ToList();

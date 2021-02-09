@@ -1,0 +1,212 @@
+﻿@model X1Site.Web.Controllers.BlockModel
+
+@{
+    ViewData["Title"] = "Block " + ViewData["id"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="panel left">Left panel</div>
+<div class="mainbody">
+
+    <table class="table table-rounded ">
+        <tbody>
+            <tr>
+                <td class="no-wrap">Type</td>
+                <td class="expand-column">@(Model.IsProofOfStake ? "Proof-of-Stake" : "Proof-of-Work")</td>
+            </tr>
+            <tr>
+                <td class="no-wrap">Date</td>
+                <td class="expand-column">@($"{Model.Time:F}")</td>
+            </tr>
+            <tr>
+                <td class="no-wrap">Height</td>
+                <td class="expand-column">@Model.Height</td>
+            </tr>
+            <tr>
+                <td class="no-wrap">Previous block</td>
+                <td class="expand-column"><a href="@Url.Action("Index", "Block", new { id = Model.PreviousBlock })">@Model.PreviousBlock</a></td>
+            </tr>
+            <tr>
+                <td class="no-wrap">Next block</td>
+                <td class="expand-column"><a href="@Url.Action("Index", "Block", new { id = Model.NextBlock })">@Model.NextBlock</a></td>
+            </tr>
+            <tr>
+                <td class="no-wrap">Merkle Root</td>
+                <td class="expand-column">@Model.MerkleRoot</td>
+            </tr>
+            <tr>
+                <td class="no-wrap">Total transactions</td>
+                <td class="expand-column">@Model.TotalTransactions</td>
+            </tr>
+            <tr>
+                <td class="no-wrap">Bits</td>
+                <td class="expand-column">0x@(Model.Bits)</td>
+            </tr>
+            <tr>
+                <td class="no-wrap">Difficulty</td>
+                <td class="expand-column">@($"{Model.Difficulty:0.########}")</td>
+            </tr>
+
+            <tr>
+                <td class="no-wrap">Size</td>
+                <td class="expand-column">@Model.Size bytes</td>
+            </tr>
+        <tr>
+            <td class="no-wrap">Version</td>
+            <td class="expand-column">0x@(Model.Version.ToString("x8"))</td>
+        </tr>
+        <tr>
+            <td class="no-wrap">Confirmations</td>
+            <td class="expand-column">@(Model.Confirmations)</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <br />
+    <h3>@Model.TotalTransactions Transaction(s)</h3>
+
+    @for (var i = Model.Start; i < Model.Max; i++)
+    {
+        var divclass = Model.Transactions[i].IsProtocolTransaction() ? "protocoltx" : "";
+        <br>
+        <div class="@divclass">
+            @if (Model.Height > 0)
+            {
+                <a href="@Url.Action("Index", "Transaction", new {id = Model.Transactions[i].GetHash()})">@Model.Transactions[i].GetHash()</a>
+            }
+            else
+            {
+                @Model.Transactions[i].GetHash()
+            }
+           
+
+            <ul>
+
+                <li>
+                    @if (Model.IsProofOfStake == false)
+                    {
+                        if (i == 0)
+                        {
+                    <span>X1 Coinbase Transaction</span>
+                        }
+                        else
+                        {
+                            <span>X1 Standard Transaction</span>
+                        }
+
+                    }
+                    else
+                    {
+                        if (i == 0)
+                        {
+                            <span>X1 Coinbase Transaction</span>
+                        }
+                        else if (i == 1)
+                        {
+                            <span>X1 Coinstake Transaction</span>
+                        }
+                        else
+                        {
+                            <span>X1 Standard Transaction</span>
+                        }
+                    }
+                </li>
+
+                <li>
+
+                    <div>
+                        <div>
+                            <img src="data:image/png;base64,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" style="width: 35px; height: 35px; margin: 5px;"/>
+                        </div>
+                        <div>
+                            @if (Model.Height > 0)
+                            {
+                                <a href="@Url.Action("Index", "Transaction", new {id = Model.Transactions[i].GetHash()})">Show Details</a>
+                            }
+
+                        </div>
+                    </div>
+
+                </li>
+
+            </ul>
+
+        </div>
+    }
+
+    <ul class="pagination">
+
+        @if (Model.Count < 10)
+        {
+            for (int i = 0; i < Model.Count; i++)
+            {
+                if (i == Model.CurrentPage)
+                {
+                    <li class="active"><a>@(i + 1)</a></li>
+                }
+                else
+                {
+                    <li><a href="@Url.Action("Index", "Block", new { id = Model.Hash, page = i })">@(i + 1)</a></li>
+                }
+            }
+        }
+        else
+        {
+            if (5 < Model.CurrentPage)
+            {
+                <li><a href="@Url.Action("Index", "Block", new { id = Model.Hash, page = 0 })">1</a></li>
+                if (6 < Model.CurrentPage)
+                {
+                    <li class="disabled"><span>…</span></li>
+                }
+
+            }
+
+
+            if (Model.CurrentPage + 10 > Model.Count)
+            {
+                for (int i = Model.CurrentPage - 5; i < Model.Count; i++)
+                {
+
+                    if (i == Model.CurrentPage)
+                    {
+                        <li class="active"><a>@(i + 1)</a></li>
+                    }
+                    else
+                    {
+                        <li><a href="@Url.Action("Index", "Block", new { id = Model.Hash, page = i })">@(i + 1)</a></li>
+                    }
+
+
+                }
+            }
+            else
+            {
+                for (int i = Model.CurrentPage < 5 ? 0 : Model.CurrentPage - 5; i < Model.CurrentPage + 5; i++)
+                {
+
+                    if (i == Model.CurrentPage)
+                    {
+                        <li class="active"><a>@(i + 1)</a></li>
+                    }
+                    else
+                    {
+                        <li><a href="@Url.Action("Index", "Block", new { id = Model.Hash, page = i })">@(i + 1)</a></li>
+                    }
+
+
+                }
+            }
+
+
+            if (Model.CurrentPage + 9 < Model.Count)
+            {
+                <li class="disabled"><span>…</span></li>
+                <li><a href="@Url.Action("Index", "Block", new { id = Model.Hash, page = Model.Count - 1 })">@Model.Count</a></li>
+            }
+        }
+
+    </ul>
+</div>
+<div class="panel right content">Right panel</div>
+

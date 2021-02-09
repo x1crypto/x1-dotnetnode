@@ -1,0 +1,170 @@
+﻿
+@using X1Site.Web.Controllers
+@model X1Site.Web.Controllers.TransactionModel
+@{
+    Layout = null;
+}
+
+<ul class="list-group">
+
+    <li class="list-group-item clearfix intput-output-group-list-item">
+        <div class="intput-output-group">
+            <div class="icon dspl-icon">
+                <img src="/images/favicon.png" style="width: 35px; height: 35px; margin: 5px;" />
+            </div>
+            <div class="inputs">
+                @if (Model.TransactionType == TransactionType.PoW_Reward_Coinbase)
+                {
+                    <div class="address-item ">
+                        <div class="amount">
+
+                        </div>
+                        <div class="address">
+                            <b>Miner Reward</b>
+                            @if (Model.TotalOut == 0m)
+                            {
+                                <b>Zero (Placeholder in Proof-of-Stake Block)</b>
+}
+                        </div>
+                    </div>}
+                else if (Model.TransactionType ==TransactionType.PoS_Reward)
+                {
+                    <div class="address-item ">
+                        <div class="amount">
+
+                        </div>
+                        <div class="address">
+                            <b>Proof-of-Stake Reward</b>
+                            @if (Model.Transaction.Outputs.Count > 2)
+                            {
+
+                                <b>plus Fees</b>
+}
+                        </div>
+                    </div>}
+                else
+                {
+                    foreach (var input in Model.TransactionIn)
+                    {
+                        <div class="address-item">
+                            <div class="amount">
+                                @input.PrevOutValue
+                            </div>
+                            <div class="address">
+                                <i class="fa fa-lg fa-arrow-left displ-fa"></i>
+                                @if (input.PrevOutAddressModel == null)
+                                {
+                                    <span>Unrecognized address</span>
+}
+                                else
+                                {
+                                    <a href="@Url.Action("Index", "Address", new { id = input.PrevOutAddressModel.Address })">@input.PrevOutAddressModel.Address | @input.PrevOutAddressModel.ScriptPubKey (@input.PrevOutAddressModel.Description)</a>
+                                    <br />
+                                    <a href="@Url.Action("Index", "Transaction", new { id = input.PrevOutTxId })">@input.PrevOutTxId</a>
+}
+                                @*
+                                        @input.Value
+
+                                    </div>
+                                    <div class="address">
+                                        <a onclick="return false;" href="@Url.Action("Index", "Address", new { id = input.Address })">@input.Address</a>
+                                        <br/>
+                                        <a href="@Url.Action("Index", "Transaction", new { id = input.TransactionId })">@input.TransactionId</a>
+                                *@
+                            </div>
+                        </div>
+}
+
+                    <div class="address-item">
+                        <div class="amount">
+                            <br />
+                            @Model.TransactionIn.Sum(x => x.PrevOutValue)
+                        </div>
+                        <hr />
+                        <div class="address">
+                            Total in
+                        </div>
+                    </div>
+                    <br />
+
+                }
+            </div>
+            @if (!(Model.TransactionType == TransactionType.PoW_Reward_Coinbase && Model.TotalOut == 0m))
+            {
+
+                <div class="outputs">
+                    <div class="outputs-container">
+                        <div class="center-chevron" style="left: -50px;">
+                            <img src="/images/arrow.png" />
+                        </div>
+
+                        @if (Model.TransactionType == TransactionType.PoS_Reward)
+                        {
+                            <div class="address-item ">
+                                <div class="amount">
+                                    @((Model.TransactionsOut.Sum(x => x.Value) - Model.TransactionIn.Sum(x => x.PrevOutValue)).ToString("#.00######"))
+                                </div>
+                                <div class="address">
+
+                                    <a href="@Url.Action("Index", "Address", new { id = Model.TransactionsOut[1].AddressModel.Address })">@Model.TransactionsOut[1].AddressModel.Address</a>
+
+                                </div>
+                            </div>}
+                        else
+                        {
+                            int index = 0;
+                            foreach (var output in Model.TransactionsOut)
+                            {
+                                <div class="address-item ">
+                                    @if (index == 1)
+                                    {
+
+                                        <div class="amount" style="font-weight: bold">
+                                            @output.Value.ToString("0.00######")
+                                        </div>
+}
+                                    else
+                                    {
+                                        <div class="amount">
+                                            @output.Value.ToString("0.00######")
+                                        </div>
+}
+                                    <div class="address">
+                                        <a href="@Url.Action("Index", "Address", new { id = output.AddressModel.Address })">@output.AddressModel.Address</a>
+                                    </div>
+                                </div>index++;
+                            }
+                            @if (Model.TransactionType != TransactionType.PoW_Reward_Coinbase)
+                            {
+                                <div class="address-item">
+                                    <div class="amount">
+                                        <br />
+                                        @Model.Fees
+                                    </div>
+                                    <hr />
+                                    <div class="address">
+                                        Fee paid
+                                        <br />
+                                    </div>
+                                </div>
+                                <div class="address-item">
+                                    <div class="amount">
+                                        <br />
+                                        @(Model.TransactionsOut.Sum(x => x.Value) + Model.Fees)
+                                    </div>
+                                    <hr />
+                                    <div class="address">
+                                        Total out
+                                    </div>
+                                </div>
+}
+
+                            <br />}
+
+
+                    </div>
+                </div>}
+
+        </div>
+    </li>
+</ul>

@@ -1,0 +1,103 @@
+﻿@using X1Site.Web.Controllers
+@model X1Site.Web.Controllers.TransactionModel
+@{
+    ViewData["Title"] = "Transaction - " + ViewData["Id"];
+}
+
+<div class="container">
+    <header class="top-nav-links clearfix">
+        <h1>Transaction</h1>
+        <table class="table table-rounded ">
+            <tbody>
+                <tr>
+                    <td class="no-wrap">Hash / txid</td>
+                    <td class="expand-column">@Model.Transaction.GetHash()</td>
+                </tr>
+
+            </tbody>
+        </table>
+    </header>
+
+    <div class="page-content">
+        <div class="transaction-explorer">
+            <div class="row">
+                <div class="col-md-7">
+                    <div class="title-bl">Details</div>
+                    <table class="table table-rounded ">
+                        <tbody>
+                            <tr>
+                                <td class="no-wrap">Type</td>
+                                <td class="expand-column">@(Model.GetTransactionTypeText())</td>
+                            </tr>
+                            <tr>
+                                <td class="no-wrap">Received</td>
+                                <td class="expand-column">
+                                    @($"{Model.ChainedHeader.Header.Time:F}")
+                                </td>
+                            </tr>
+                          
+                                <tr>
+                                    <td class="no-wrap">Fee</td>
+                                    <td class="expand-column">
+                                        @if(Model.TransactionType == TransactionType.PoS_Reward || Model.TransactionType ==TransactionType.PoW_Reward_Coinbase)
+                                        {
+                                            <text>N/A</text>}
+                                        else
+                                        {
+                                            <text>@(String.Format("{0:0.00######}", Model.Fees)) X1</text>
+
+
+                                        }
+                                   
+                                    </td>
+                                </tr>
+                               
+                            <tr>
+                                <td class="no-wrap">Block Height</td>
+                                <td class="expand-column">
+                                    <a href="@Url.Action("Index", "Block", new { id = Model.ChainedHeader.Height })">@Model.ChainedHeader.Height</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-5">
+                    @if (Model.ChainedHeader.Block != null)
+                    {
+                        <div class="title-bl">Block</div>
+                        <table class="table table-rounded ">
+                            <tbody>
+                                <tr>
+                                    <td class="no-wrap">Confirmations</td>
+                                    <td class="expand-column">@(Model.Confirmations) Confirmations</td>
+                                </tr>
+                                <tr>
+                                    <td class="no-wrap">Time</td>
+                                    <td class="expand-column">@($"{Model.ChainedHeader.Header.Time:F}")</td>
+                                </tr>
+                                <tr>
+                                    <td class="no-wrap">Block Hash</td>
+                                    <td class="expand-column"><a href="@Url.Action("Index", "Block", new { id = Model.ChainedHeader.HashBlock })">@Model.ChainedHeader.HashBlock</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="no-wrap">Proof-of-Stake</td>
+                                    <td class="expand-column">@(Model.ChainedHeader.Block.Transactions.Count >1 && Model.ChainedHeader.Block.Transactions[1].IsCoinStake) </td>
+                                </tr>
+                            </tbody>
+                        </table>}
+                </div>
+            </div>
+            <div class="panel panel-default transaction-details tr-de-inner detal-tr-inner">
+                <div class="panel-heading">
+                    <h3 class="panel-title">XDS</h3>
+                </div>
+
+                @Html.Partial("PartialTransactionDetails", Model)
+
+            </div>
+
+        </div>
+
+    </div>
+    <div class="footer-push"></div>
+</div>

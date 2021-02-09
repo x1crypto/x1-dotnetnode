@@ -1,0 +1,48 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+@model X1Site.Web.Controllers.HomeViewModel
+@section css
+{
+    <style>
+        body {
+            background-image: url("images/green.jpg");
+            background-size: cover;
+        }
+    </style>
+
+}
+<br />
+<br />
+<div class="justify-content-center">
+    <div class="col">
+        <div class="d-flex justify-content-center align-items-md-center">
+            <img src="images/x1-symbol-512.png" style="width: 220px; margin: 25px;" />
+            <br />
+            <p class="h1 text-white" style="margin: 25px; font-size: 80px;">x1Crypto</p>
+
+        </div>
+        <div class="d-flex justify-content-center">
+            <p class="h1 text-white font-italic">“It's time for a greener cheaper bitcoin!”</p>
+        </div>
+        <br />
+        <br />
+        <form method="get" action="@Url.Action("Index", "Search")" class="form-inline my-2 my-lg-0 justify-content-center">
+            <input class="form-control mr-sm-2" style="width: 500px" type="search" placeholder="Search blocks, transactions, and addresses" aria-label="Search" minlength="1" required="required">
+            <button class="btn btn-success my-2 my-sm-0" type="submit">Search</button>
+            <br />
+
+        </form>
+        @if (@Model.Tip != null)
+        {
+            <p class="text-center text-dark h4 mt-2">Last block: <a class="text-white h4" href="@Url.Action("Index", "Block", new {id = Model.Tip.HashBlock})">@Model.Tip.Height</a> - @Model.Network.Name</p><br />
+            @*<span style="font-size: 10px;">Did you know? You can enter 'OP_RETURN' to search for unspendable coins.</span>*@
+
+
+        }
+        else
+        {
+            <p class="text-center text-dark">The block explorer's node is not ready - @Model.Network.Name</p>
+        }
+    </div>
+</div>

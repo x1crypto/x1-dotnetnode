@@ -1,0 +1,13 @@
+﻿
+.footer {
+    padding-top: 0.6rem;
+    padding-right: 1.2rem;
+    padding-bottom: 0.6rem;
+    padding-left: 1.2rem;
+}
+
+#x1 {
+    align-items: center;
+    display: flex;
+}
+

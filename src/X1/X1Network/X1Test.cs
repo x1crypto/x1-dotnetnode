@@ -18,7 +18,6 @@ using X1.X1Network.Consensus;
 using X1.X1Network.Deployments;
 using X1.X1Network.Policies;
 using X1.X1Network.Rules;
-using X1.X1Network.TODO;
 
 namespace X1.X1Network
 {
@@ -191,7 +190,6 @@ namespace X1.X1Network
 
             consensus.MempoolRules = new List<Type>
             {
-                typeof(X1PreMempoolChecksMempoolRule),
                 typeof(CheckConflictsMempoolRule),
                 typeof(CheckCoinViewMempoolRule),
                 typeof(CreateMempoolEntryMempoolRule),

@@ -198,7 +198,6 @@ namespace X1.X1Network
 
             consensus.MempoolRules = new List<Type>
             {
-                typeof(X1PreMempoolChecksMempoolRule),
                 typeof(CheckConflictsMempoolRule),
                 typeof(CheckCoinViewMempoolRule),
                 typeof(CreateMempoolEntryMempoolRule),
